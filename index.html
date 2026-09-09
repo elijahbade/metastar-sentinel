@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MetaStar Sentinel — AI Real Estate Due Diligence & Title Risk Engine</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-dark">
+  <!-- Top Navigation Header -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="brand-badge">
+        <div class="logo-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="m9 12 2 2 4-4"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">MetaStar <span class="accent-text">SENTINEL</span></span>
+          <span class="brand-sub">AI Real Estate Due Diligence & Title Risk Engine</span>
+        </div>
+      </div>
+      <div class="company-tag">MUST Company · MSQUARE Ecosystem</div>
+    </div>
+
+    <div class="header-right">
+      <div class="engine-status">
+        <span class="pulse-dot"></span>
+        <span class="status-label" id="engineStatusText">AI Verification Engine: Active (Multi-Registry Synthesized)</span>
+      </div>
+      <button class="lang-btn" id="langToggleBtn" title="Toggle English / Korean">
+        <span class="lang-icon">🌐</span> <span id="currentLang">English (EN)</span>
+      </button>
+      <button class="action-btn-primary" id="openCertificateBtn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/>
+          <polyline points="10 9 9 9 8 9"/>
+        </svg>
+        <span data-i18n="btn_closing_cert">Broker Closing Certificate</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="app-layout">
+    <!-- Top Bar: Address & Test Scenario Selector -->
+    <section class="scenario-selector-bar">
+      <div class="selector-header">
+        <span class="section-badge" data-i18n="badge_scenarios">Test Scenarios & Real Estate Records</span>
+        <span class="selector-hint" data-i18n="scenario_hint">Select a real-world case study or enter a Korean address to trigger autonomous due diligence:</span>
+      </div>
+      <div class="scenario-chips" id="scenarioChipsContainer">
+        <!-- Injected via TypeScript -->
+      </div>
+    </section>
+
+    <!-- Address Search & Metadata Bar -->
+    <section class="address-meta-bar">
+      <div class="search-input-group">
+        <div class="search-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </div>
+        <input type="text" id="addressInput" class="address-input" readonly>
+        <button class="run-audit-btn" id="reRunAuditBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 4 23 10 17 10"/>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+          </svg>
+          <span data-i18n="btn_reanalyze">Re-Analyze Title</span>
+        </button>
+      </div>
+
+      <div class="meta-indicators">
+        <div class="meta-chip">
+          <span class="meta-chip-label" data-i18n="label_prop_type">Type:</span>
+          <strong id="metaPropType">-</strong>
+        </div>
+        <div class="meta-chip">
+          <span class="meta-chip-label" data-i18n="label_market_val">Market Value:</span>
+          <strong id="metaMarketPrice">-</strong>
+        </div>
+        <div class="meta-chip">
+          <span class="meta-chip-label" data-i18n="label_deposit">Jeonse Deposit:</span>
+          <strong id="metaDeposit">-</strong>
+        </div>
+        <div class="meta-chip highlight-chip">
+          <span class="meta-chip-label" data-i18n="label_jeonse_ratio">Jeonse Ratio:</span>
+          <strong id="metaJeonseRatio">-</strong>
+        </div>
+      </div>
+    </section>
+
+    <!-- Core Grid Layout -->
+    <div class="dashboard-grid">
+      <!-- Left Column: Sentinel Score, HUG Badge & Waterfall Simulation -->
+      <aside class="left-panel">
+        <!-- Sentinel Score Card -->
+        <div class="glass-card score-card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <h3 data-i18n="title_sentinel_score">Sentinel Safety Score</h3>
+              <span class="info-tooltip" title="Composite title safety rating based on lien waterfall, auction clearance, trust deeds, and architectural compliance.">?</span>
+            </div>
+            <div class="risk-pill" id="riskPillBadge">SAFE</div>
+          </div>
+
+          <div class="score-display-area">
+            <div class="gauge-container">
+              <svg class="gauge-svg" viewBox="0 0 200 120">
+                <path class="gauge-bg" d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke-width="16"/>
+                <path class="gauge-progress" id="gaugeProgressPath" d="M 20 105 A 80 80 0 0 1 180 105" fill="none" stroke-width="16"/>
+              </svg>
+              <div class="gauge-value-box">
+                <span class="score-number" id="scoreValue">96</span>
+                <span class="score-max">/ 100</span>
+              </div>
+            </div>
+            <p class="score-verdict" id="scoreVerdictText">Prime safe asset. Approved for standard lease execution.</p>
+          </div>
+
+          <!-- HUG Deposit Guarantee Eligibility -->
+          <div class="hug-status-box" id="hugStatusBox">
+            <div class="hug-header">
+              <div class="hug-title">
+                <span class="hug-logo">HUG</span>
+                <strong data-i18n="label_hug_check">Housing & Urban Guarantee (HUG)</strong>
+              </div>
+              <span class="hug-badge approved" id="hugEligibilityBadge">ELIGIBLE</span>
+            </div>
+            <p class="hug-desc" id="hugReasonText">Meets 90% LTV threshold. No senior lien impediment. Clear building ledger.</p>
+          </div>
+        </div>
+
+        <!-- Auction Dividend & Capital Recovery Simulator -->
+        <div class="glass-card simulation-card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <h3 data-i18n="title_auction_sim">Auction Dividend Recovery Simulator</h3>
+              <span class="info-tooltip" title="Simulates real-world court auction liquidation under the Korean Civil Execution Act to calculate exact deposit recovery.">?</span>
+            </div>
+            <span class="sim-badge" id="recoveryRateBadge">100% Recovery</span>
+          </div>
+
+          <div class="slider-control">
+            <div class="slider-labels">
+              <span data-i18n="label_auction_rate">Estimated Auction Liquidation Ratio:</span>
+              <strong id="auctionRateDisplay">74.5%</strong>
+            </div>
+            <input type="range" id="auctionRateSlider" min="50" max="95" step="0.5" value="74.5" class="custom-slider">
+            <div class="slider-range-tips">
+              <span>50% (Distressed)</span>
+              <span>75% (Seoul Avg)</span>
+              <span>95% (Peak Prime)</span>
+            </div>
+          </div>
+
+          <!-- Waterfall Chart -->
+          <div class="waterfall-container">
+            <div class="waterfall-header">
+              <span data-i18n="label_court_proceeds">Court Sale Proceeds:</span>
+              <strong id="courtProceedsVal">₩ 1,192,000,000</strong>
+            </div>
+
+            <div class="waterfall-bar" id="waterfallBar">
+              <!-- Dynamically populated segments -->
+            </div>
+
+            <div class="waterfall-legend">
+              <div class="legend-item">
+                <span class="legend-color color-court"></span>
+                <span data-i18n="leg_court_cost">Court Costs</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-color color-senior"></span>
+                <span data-i18n="leg_senior_debt">Senior Mortgages</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-color color-tenant"></span>
+                <span data-i18n="leg_tenant_recovered">Tenant Recovered</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-color color-loss"></span>
+                <span data-i18n="leg_tenant_loss">Tenant Unrecovered Loss</span>
+              </div>
+            </div>
+
+            <div class="recovery-summary-grid">
+              <div class="rec-metric">
+                <span class="rec-label" data-i18n="label_net_recovered">Net Tenant Recovered:</span>
+                <strong class="rec-val safe-text" id="netTenantRecovered">₩ 800,000,000</strong>
+              </div>
+              <div class="rec-metric">
+                <span class="rec-label" data-i18n="label_estimated_loss">Projected Capital Loss:</span>
+                <strong class="rec-val danger-text" id="projectedLoss">₩ 0 (0.0%)</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Center & Right Column: Raw MetaStar Documents & AI Sentinel Insights -->
+      <section class="main-panel">
+        <!-- AI Sentinel Executive Intelligence Banner -->
+        <div class="glass-card ai-insight-card">
+          <div class="ai-banner-header">
+            <div class="ai-title-group">
+              <div class="ai-sparkle">✦</div>
+              <div>
+                <h3 data-i18n="title_ai_assessment">AI Sentinel Executive Assessment</h3>
+                <span class="ai-sub" data-i18n="ai_sub">Grounded in Korean Supreme Court precedents & Public Registry Ingestion</span>
+              </div>
+            </div>
+            <div class="timestamp-badge" id="auditTimestamp">Audit: 2026-09-09 · Block #48192</div>
+          </div>
+
+          <div class="ai-summary-box" id="aiSummaryBox">
+            <!-- Dynamic summary text -->
+          </div>
+
+          <!-- Red Flags Alert Grid -->
+          <div class="red-flags-container" id="redFlagsContainer">
+            <!-- Dynamically populated or 'No Red Flags' badge -->
+          </div>
+        </div>
+
+        <!-- Multi-Document Raw Ingestion & Verification View -->
+        <div class="glass-card documents-card">
+          <div class="doc-tabs-header">
+            <div class="tabs-list" role="tablist">
+              <button class="doc-tab active" data-tab="registry" role="tab">
+                <span class="tab-icon">📜</span>
+                <span data-i18n="tab_registry">Supreme Court Registry (등기부등본)</span>
+              </button>
+              <button class="doc-tab" data-tab="building" role="tab">
+                <span class="tab-icon">🏢</span>
+                <span data-i18n="tab_building">Gov24 Building Ledger (건축물대장)</span>
+              </button>
+              <button class="doc-tab" data-tab="market" role="tab">
+                <span class="tab-icon">📊</span>
+                <span data-i18n="tab_market">Market Valuation & KB Trend</span>
+              </button>
+              <button class="doc-tab" data-tab="ai_graph" role="tab">
+                <span class="tab-icon">⚡</span>
+                <span data-i18n="tab_graph">AI Lien Priority Graph</span>
+              </button>
+            </div>
+            <div class="doc-badge" id="docStatusBadge">3 Documents Synthesized</div>
+          </div>
+
+          <div class="tab-content-wrapper">
+            <!-- Tab 1: Registry (Pyojebu, Gapgu, Eulgu) -->
+            <div class="tab-pane active" id="pane-registry">
+              <div class="registry-sections">
+                <!-- Pyojebu -->
+                <div class="registry-block">
+                  <div class="block-title">
+                    <span class="badge-tag">Pyojebu (표제부)</span>
+                    <span data-i18n="title_pyojebu">Property Identification & Physical Description</span>
+                  </div>
+                  <div class="table-responsive">
+                    <table class="registry-table">
+                      <thead>
+                        <tr>
+                          <th>Item #</th>
+                          <th>Recorded Date</th>
+                          <th>Building & Land Lot Designation</th>
+                          <th>Structure & Exclusive Area</th>
+                          <th>Appurtenant Land Ratio</th>
+                        </tr>
+                      </thead>
+                      <tbody id="pyojebuBody"></tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <!-- Gapgu -->
+                <div class="registry-block">
+                  <div class="block-title">
+                    <span class="badge-tag">Gapgu (갑구)</span>
+                    <span data-i18n="title_gapgu">Ownership Rights & Title Encumbrances (Trust, Seizures)</span>
+                  </div>
+                  <div class="table-responsive">
+                    <table class="registry-table">
+                      <thead>
+                        <tr>
+                          <th>Rank #</th>
+                          <th>Registration Purpose</th>
+                          <th>Receipt Date</th>
+                          <th>Cause of Acquisition</th>
+                          <th>Right Holder, Trust Deed & Encumbrances</th>
+                        </tr>
+                      </thead>
+                      <tbody id="gapguBody"></tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <!-- Eulgu -->
+                <div class="registry-block">
+                  <div class="block-title">
+                    <span class="badge-tag">Eulgu (을구)</span>
+                    <span data-i18n="title_eulgu">Senior Mortgages, Collateral & Liens</span>
+                  </div>
+                  <div class="table-responsive">
+                    <table class="registry-table">
+                      <thead>
+                        <tr>
+                          <th>Rank #</th>
+                          <th>Registration Purpose</th>
+                          <th>Receipt Date</th>
+                          <th>Maximum Claim Amount</th>
+                          <th>Creditor & Debtor Details</th>
+                        </tr>
+                      </thead>
+                      <tbody id="eulguBody"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab 2: Building Ledger -->
+            <div class="tab-pane" id="pane-building">
+              <div class="building-ledger-view">
+                <div class="ledger-meta-card">
+                  <div class="ledger-header-row">
+                    <div>
+                      <h4 id="ledgerTypeDisplay">Official Building Ledger (Gov24 Unit Extract)</h4>
+                      <span class="ledger-sub" id="ledgerAddressDisplay">-</span>
+                    </div>
+                    <div class="violation-stamp-wrapper">
+                      <span class="violation-stamp normal" id="violationStamp">NORMAL (COMPLIANT)</span>
+                    </div>
+                  </div>
+                  <div class="ledger-details-grid">
+                    <div class="ledger-item">
+                      <span class="item-lbl" data-i18n="lbl_permitted_use">Permitted Legal Use:</span>
+                      <strong id="ledgerLegalUse">-</strong>
+                    </div>
+                    <div class="ledger-item">
+                      <span class="item-lbl" data-i18n="lbl_enforcement_fine">Enforcement Penalty Status:</span>
+                      <strong id="ledgerFineStatus">-</strong>
+                    </div>
+                    <div class="ledger-item full-width">
+                      <span class="item-lbl" data-i18n="lbl_violation_notes">Violation Particulars:</span>
+                      <p id="ledgerViolationNotes" class="violation-text">No unregistered or illegal structural alterations recorded.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab 3: Market Valuation & KB Trend -->
+            <div class="tab-pane" id="pane-market">
+              <div class="market-view-card">
+                <div class="market-stats-row">
+                  <div class="m-stat">
+                    <span data-i18n="lbl_kb_price">KB / MOLIT Verified Price</span>
+                    <h3 id="mVerifiedPrice">₩ 1.60B</h3>
+                  </div>
+                  <div class="m-stat">
+                    <span data-i18n="lbl_public_price">Public Assessment Price (MOLIT)</span>
+                    <h3 id="mPublicPrice">₩ 1.12B</h3>
+                  </div>
+                  <div class="m-stat">
+                    <span data-i18n="lbl_recent_transactions">3-Month Transaction Range</span>
+                    <h3 id="mTxRange">₩ 1.55B ~ 1.68B</h3>
+                  </div>
+                </div>
+                <div class="market-note-box">
+                  <span class="note-icon">💡</span>
+                  <p id="marketNoteText">The proposed Jeonse deposit represents 50.0% of verified market value. Even under severe regional price contraction, deposit recovery remains insulated.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab 4: AI Lien Priority Graph -->
+            <div class="tab-pane" id="pane-ai_graph">
+              <div class="priority-graph-view">
+                <div class="graph-header">
+                  <h4 data-i18n="graph_title">Chronological Lien Sequencing & Distribution Hierarchy</h4>
+                  <p data-i18n="graph_sub">Statutory liquidation order under Article 3 of the Housing Lease Protection Act & Real Estate Registration Act.</p>
+                </div>
+                <div class="timeline-tree" id="timelineTree">
+                  <!-- Injected via TypeScript -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Deal Closing Acceleration: Actionable Special Clauses & Broker Directives -->
+        <div class="glass-card action-clauses-card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <div class="shield-icon">⚖️</div>
+              <div>
+                <h3 data-i18n="title_broker_clauses">AI Deal Closing Clauses & Broker Protection Addenda</h3>
+                <span class="card-sub" data-i18n="sub_broker_clauses">Copy-paste protective provisions for the lease contract to close deals safely and eliminate broker liability.</span>
+              </div>
+            </div>
+            <button class="copy-all-btn" id="copyAllClausesBtn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+              </svg>
+              <span data-i18n="btn_copy_all">Copy All Clauses</span>
+            </button>
+          </div>
+
+          <div class="broker-directive-box">
+            <span class="directive-label" data-i18n="lbl_broker_action">Broker Closing Directive:</span>
+            <p id="brokerActionText">-</p>
+          </div>
+
+          <div class="clauses-list" id="clausesList">
+            <!-- Populated via TypeScript -->
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Broker Closing Certificate Modal -->
+  <div class="modal-backdrop" id="certModal">
+    <div class="certificate-modal">
+      <div class="cert-modal-header">
+        <div class="cert-header-title">
+          <span class="cert-stamp">METASTAR VERIFIED</span>
+          <h3>Real Estate Title Safety & Due Diligence Certificate</h3>
+        </div>
+        <button class="modal-close-btn" id="closeCertModalBtn">×</button>
+      </div>
+
+      <div class="certificate-body" id="printableCertArea">
+        <div class="cert-watermark">METASTAR SENTINEL</div>
+        <div class="cert-top-branding">
+          <div>
+            <div class="cert-logo-text">MetaStar Sentinel · Title Intelligence</div>
+            <div class="cert-date-id" id="certDocId">Document ID: MS-2026-894192 · Issued: 2026-09-09</div>
+          </div>
+          <div class="cert-seal">
+            <div class="seal-inner">
+              <span>TITLE RISK</span>
+              <strong id="certSealScore">96</strong>
+              <span>VERIFIED</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="cert-section">
+          <h4>1. Property & Transaction Identification</h4>
+          <table class="cert-table">
+            <tr>
+              <th>Verified Address</th>
+              <td colspan="3" id="certAddress">-</td>
+            </tr>
+            <tr>
+              <th>Property Classification</th>
+              <td id="certType">-</td>
+              <th>Exclusive Area</th>
+              <td id="certArea">-</td>
+            </tr>
+            <tr>
+              <th>Market Value (MOLIT/KB)</th>
+              <td id="certMarketVal">-</td>
+              <th>Proposed Jeonse Deposit</th>
+              <td id="certDepositVal">-</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="cert-section">
+          <h4>2. Multi-Registry Due Diligence Verdict</h4>
+          <div class="cert-verdict-grid">
+            <div class="cert-v-card">
+              <span class="cv-label">Supreme Court Title Status</span>
+              <strong class="cv-val" id="certTitleStatus">Clear Sole Ownership</strong>
+            </div>
+            <div class="cert-v-card">
+              <span class="cv-label">Senior Lien / Mortgage Ratio</span>
+              <strong class="cv-val" id="certSeniorRatio">7.5% (Safe)</strong>
+            </div>
+            <div class="cert-v-card">
+              <span class="cv-label">Gov24 Building Compliance</span>
+              <strong class="cv-val" id="certBuildingStatus">No Violations</strong>
+            </div>
+            <div class="cert-v-card">
+              <span class="cv-label">HUG Deposit Guarantee</span>
+              <strong class="cv-val" id="certHugStatus">Eligible</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="cert-section">
+          <h4>3. Deal Closing Endorsement & Protective Addenda</h4>
+          <p class="cert-p" id="certSummaryText">-</p>
+          <div class="cert-clauses-box" id="certClausesBox">
+            <!-- Inserted clauses -->
+          </div>
+        </div>
+
+        <div class="cert-footer">
+          <div class="cert-signature-area">
+            <div>
+              <span class="sig-title">Certified by:</span>
+              <p>MetaStar Sentinel Automated Due Diligence Engine</p>
+            </div>
+            <div>
+              <span class="sig-title">Operating Ecosystem:</span>
+              <p>MSQUARE Global Platform Ecosystem</p>
+            </div>
+          </div>
+          <div class="cert-disclaimer">
+            * This document represents an automated risk evaluation synthesized from Supreme Court and Government24 public records as of the lookup timestamp. It is designed to assist licensed real estate brokers and contracting parties in mitigating legal liability and title ambiguity.
+          </div>
+        </div>
+      </div>
+
+      <div class="cert-modal-footer">
+        <button class="cert-btn-secondary" id="copyShareLinkBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+          </svg>
+          <span>Copy Shareable Closing Link</span>
+        </button>
+        <button class="cert-btn-primary" onclick="window.print()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 6 2 18 2 18 9"/>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+            <rect x="6" y="14" width="12" height="8"/>
+          </svg>
+          <span>Print / Save PDF Certificate</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-notification" id="toastNotification">Notification</div>
+
+  <!-- Application Entry Point (TypeScript) -->
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
